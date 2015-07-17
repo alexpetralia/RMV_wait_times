@@ -13,9 +13,10 @@ shinyUI(fluidPage(
 #       image(src = 'logo.png', height=72, width=72), # image must be in www folder in app folder
 #       code("this is a note"),
 
-      uiOutput("weeks"),
+#       uiOutput("weeks"),
       
-      uiOutput("cities")    
+      uiOutput("cities"),
+      width = 2
       ), # do NOT include a comma in the last element of an array/panel
       # list of widgets: http://shiny.rstudio.com/gallery/widget-gallery.html
 
