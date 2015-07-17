@@ -3,6 +3,7 @@ library(plyr)
 library(ggplot2)
 library(reshape2)
 library(scales)
+library(lubridate)
 
 x <- read.csv("wait_times.csv", header=T, stringsAsFactors=FALSE, colClasses = c("character", rep("numeric", 30)))
 x <- rename(x, c("Fall.River" = "Fall River", "Martha.s.Vineyard" = "Martha's Vineyard", "New.Bedford" = "New Bedford", "North.Adams" = "North Adams", "South.Yarmouth" = "South Yarmouth"))
@@ -38,7 +39,6 @@ x_plot$timestamp <- as.POSIXct(paste(x_plot$day_number, x_plot$time), format="%Y
 x_plot$day_number <- NULL
 x_plot <- x_plot[order(x_plot$timestamp), ]
 
-
 shinyServer(function(input, output, session) {  
   # pass server-side code into initial UI page
   output$cities <- renderUI({
@@ -53,11 +53,10 @@ shinyServer(function(input, output, session) {
   output$main <- renderPlot({ # also renderText (w/ paste()), renderTable, etc.
         
     x_output <- x_plot[x_plot$city == input$cities, ]
+    tz(x_output$timestamp) <- "GMT" # "America/New_York"
     
-    p <- ggplot(x_output, aes(x=timestamp, y=avg_wait_time, group=city)) + geom_line(aes(color=city), size=1.5) + theme(axis.text.x = element_text(angle = 90, hjust=1), legend.position = "bottom") + labs(x=NULL, y="Waiting time (minutes)") + facet_wrap( ~ weekday, ncol=5) + scale_x_datetime(breaks = date_breaks("1 hour")) #limits = c(as.POSIXct("9:00"), as.POSIXct("18:00"))
+    p <- ggplot(x_output, aes(x=timestamp, y=avg_wait_time, group=city)) + geom_line(aes(color=city), size=1.5) + theme(axis.text.x = element_text(angle = 90, hjust=1), legend.position = "bottom") + labs(x=NULL, y="Waiting time (minutes)") + facet_wrap( ~ weekday, ncol=5, scales="free") + scale_x_datetime(breaks = date_breaks("1 hour"), labels=date_format("%H:%M"))
     print(p)
-    
-    ##### TO FIX: X-AXIS RANGE BIZ. HOURS ONLY (9am-6pm), FORMAT SHOW ONLY HOURS #####
   })
   
 })
