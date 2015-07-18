@@ -3,7 +3,7 @@ library(plyr)
 library(ggplot2)
 library(reshape2)
 library(scales)
-library(lubridate)
+library(grid)
 
 x <- read.csv("wait_times.csv", header=T, stringsAsFactors=FALSE, colClasses = c("character", rep("numeric", 30)))
 x <- rename(x, c("Fall.River" = "Fall River", "Martha.s.Vineyard" = "Martha's Vineyard", "New.Bedford" = "New Bedford", "North.Adams" = "North Adams", "South.Yarmouth" = "South Yarmouth"))
@@ -42,22 +42,24 @@ x_plot <- x_plot[order(x_plot$timestamp), ]
 shinyServer(function(input, output, session) {  
   # pass server-side code into initial UI page
   output$cities <- renderUI({
-    checkboxGroupInput("cities", 
-                       label = h3("Select your cities:"),
-                       as.list(cities),
+    radioButtons("cities", 
+                       label = h3("Select your city:"),
+                       choices = as.list(cities),
                        selected = "Boston")
   })
   
   ### RENDER ### (stored in output variable)
     
   output$main <- renderPlot({ # also renderText (w/ paste()), renderTable, etc.
-        
     x_output <- x_plot[x_plot$city == input$cities, ]
-    tz(x_output$timestamp) <- "GMT" # "America/New_York"
+    x_output$time <- strftime(x_output$timestamp, format="%H:%M")
+    brks <- c("09:02", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "17:58")
+    brks_labels <- c("9:00 am", "10:00 am", "11:00 am", "12:00 pm", "1:00 pm", "2:00 pm", "3:00 pm", "4:00 pm", "5:00 pm", "6:00pm")
     
-    p <- ggplot(x_output, aes(x=timestamp, y=avg_wait_time, group=city)) + geom_line(aes(color=city), size=1.5) + theme(axis.text.x = element_text(angle = 90, hjust=1), legend.position = "bottom") + labs(x=NULL, y="Waiting time (minutes)") + facet_wrap( ~ weekday, ncol=5, scales="free") + scale_x_datetime(breaks = date_breaks("1 hour"), labels=date_format("%H:%M"))
+    p <- ggplot(x_output, aes(x=factor(time), y=avg_wait_time, group=city)) + geom_line(size=.8, color="blue") + theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.3), legend.position = "bottom", panel.margin = unit(1, "line")) + labs(x=NULL, y="Waiting time (minutes)") + facet_wrap( ~ weekday, ncol=5) + scale_x_discrete(breaks = brks, labels=brks_labels) #+ scale_x_datetime(breaks = date_breaks("1 hour"), labels=date_format("%H:%M"))
     print(p)
-  })
+  
+    })
   
 })
 
