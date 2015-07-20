@@ -1,6 +1,6 @@
 shinyUI(fluidPage(
   
-  titlePanel("Massachusetts: Average wait times at various RMV locations"),
+  titlePanel("Massachusetts: licensing Average wait times at various RMV locations"),
   
   sidebarLayout(
     
