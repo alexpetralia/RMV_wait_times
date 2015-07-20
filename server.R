@@ -56,7 +56,7 @@ shinyServer(function(input, output, session) {
     brks <- c("09:02", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "17:58")
     brks_labels <- c("9:00 am", "10:00 am", "11:00 am", "12:00 pm", "1:00 pm", "2:00 pm", "3:00 pm", "4:00 pm", "5:00 pm", "6:00pm")
     
-    p <- ggplot(x_output, aes(x=factor(time), y=avg_wait_time, group=city)) + geom_line(size=.8, color="blue") + theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.3), legend.position = "bottom", panel.margin = unit(1, "line")) + labs(x=NULL, y="Waiting time (minutes)") + facet_wrap( ~ weekday, ncol=5) + scale_x_discrete(breaks = brks, labels=brks_labels) #+ scale_x_datetime(breaks = date_breaks("1 hour"), labels=date_format("%H:%M"))
+    p <- ggplot(x_output, aes(x=factor(time), y=avg_wait_time, group=city)) + geom_line(size=.8, color="blue") + theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.3), legend.position = "bottom", panel.margin = unit(1, "line")) + labs(x=NULL, y="Waiting time (minutes)") + facet_wrap( ~ weekday, ncol=5) + scale_x_discrete(breaks = brks, labels=brks_labels) + scale_y_continuous(breaks = c(seq(0, 400, by=25)), labels = c(seq(0,400,by=25)))
     print(p)
   
     })
